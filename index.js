@@ -1,6 +1,9 @@
 const { httpServer } = require('./app');
+const config = require('./config/enviroment');
 
 
-httpServer.listen(3000, 'localhost', ()=>{
-    console.log('Server is listen at 3000..')
+const PORT = config.httpPort;
+
+httpServer.listen(PORT, 'localhost', ()=>{
+    console.log(`Server is listen at ${PORT}..`)
 })
