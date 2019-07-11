@@ -1,6 +1,9 @@
 const http = require('http');
 const url = require('url');
 const { StringDecoder } = require('string_decoder');
+const _helpder = require('./lib/helpers');
+
+console.log(_helpder.hashPassword('abc123459'));
 
 const unifiedServer = (req, res)=>{
     const parsedUrl = url.parse(req.url, true);
