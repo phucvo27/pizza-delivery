@@ -1,17 +1,24 @@
 const http = require('http');
 const url = require('url');
 const { StringDecoder } = require('string_decoder');
-const _helpder = require('./lib/helpers');
+const _helper = require('./lib/helpers');
+const routes = require('./routes/index');
 
-console.log(_helpder.hashPassword('abc123459'));
 
+const handlers = function(trimmedPath){
+    if(trimmedPath.startsWith('public')){
+
+    }else{
+        return typeof routes[trimmedPath] !== 'undefined' ? routes[trimmedPath] : routes.notFound;
+    }
+}
 const unifiedServer = (req, res)=>{
     const parsedUrl = url.parse(req.url, true);
     const pathname = parsedUrl.pathname;
-    const trimmedPathname = pathname.replace(/^\/+|\/+$/i, "");
+    const trimmedPath = pathname.replace(/^\/+|\/+$/i, "");
     const headers = req.headers;
     const queryObject = parsedUrl.query;
-
+    const method = req.method.toLowerCase();
     const decoder = new StringDecoder('utf-8');
     let payload = '';
 
@@ -20,10 +27,24 @@ const unifiedServer = (req, res)=>{
     });
     req.on('end', ()=>{
         payload += decoder.end();
-        console.log(`Headers is : ${headers}, and trimmedPath is :${trimmedPathname}`);
-        console.log(`queryObject is : ${JSON.stringify(queryObject)}`);
+        const data = {
+            trimmedPath,
+            headers,
+            method,
+            queryObject,
+            payload: _helper.parseToObject(payload)
+        }
+        const choosenHandler = handlers(trimmedPath);
+        choosenHandler(data, function(statusCode, response, contentType = 'application/json'){
+            statusCode = typeof statusCode === 'number' ? statusCode : 200;
+            response = typeof response === 'object' ? response : {};
 
-        res.end("done \n")
+            res.writeHead(statusCode, {
+                'Content-type': contentType
+            });
+            res.end(JSON.stringify(response));
+        })
+        
     })
     
 
