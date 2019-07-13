@@ -56,7 +56,6 @@ class User {
         return new Promise((resolve, reject)=>{
             file.read('users', id, function(err, oldUser){
                 if(!err && oldUser){
-                    console.log()
                     file.update('users', id, {...oldUser, ...newUser}, function(err){
                         if(!err){
                             resolve({...oldUser, ...newUser})
@@ -66,6 +65,24 @@ class User {
                     })
                 }else{
                     reject('The user is not exist')
+                }
+            })
+        })
+    }
+
+    static findAndRemove(id){
+        return new Promise((resolve, reject)=>{
+            file.read('users', id, (err, data)=>{
+                if(!err && data){
+                    file.delete('users', id, (err)=>{
+                        if(!err){
+                            resolve(data);
+                        }else{
+                            reject('Error when deleting user')
+                        }
+                    })
+                }else{
+                    reject('Invalid id')
                 }
             })
         })
